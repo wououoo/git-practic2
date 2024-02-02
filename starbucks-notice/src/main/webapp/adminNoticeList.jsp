@@ -17,6 +17,11 @@
 </head>
 <body>
 <%
+	// request, session, application --> 웹서버 생명추가
+
+	session.setAttribute("name', "홍길동");      // 키 값 순서
+//	session.getAttribute(arg0, arg1)     // 키 값 순서
+
 	String searchText = request.getParameter("search");
 	if (searchText == null) {
 		searchText = "";
@@ -91,6 +96,7 @@
         </div>
     </div>
     
+    
     <script>
     	function searchText() {
     		location.href = "./adminNoticeList.jsp?search=" + $('#search-text').val();
@@ -102,5 +108,7 @@
     		}
     	}
     </script>
+    
+    
 </body>
 </html>

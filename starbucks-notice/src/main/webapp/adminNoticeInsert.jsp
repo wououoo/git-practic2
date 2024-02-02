@@ -2,14 +2,16 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.lang.Exception" %>    
 <%@ page import="java.sql.*" %>
+<%@ page import="com.oreilly.servlet.*" %>
+<%@ page import="com.oreilly.servlet.multipart.*" %>
 <%
 	// 한글 처리
 	request.setCharacterEncoding("UTF-8");
 	
-	String korname = request.getParameter("korname");
+	String korname = "";
 	// System.out.println("korname: " + korname);
-	String title = request.getParameter("title");
-	String content = request.getParameter("content");
+	String title = "";
+	String content = "";
 	
 	String JDBC_URL = "jdbc:oracle:thin:@localhost:1521:orcl";
   String USER = "jsp";
@@ -17,10 +19,24 @@
 	
   Connection conn = null; //디비 접속 성공시 접속 정보 저장
 	PreparedStatement pstmt = null; // 쿼리 실행문
-	
 	Exception exception = null;
+	String savePath = "D:\\java_web_sol\\workspace_stsb\\starbucks-notice\\src\\main\\webapp\\upload-files";
 	
   try {
+	  MultipartRequest multi = new MultipartRequest(
+			request,
+			savePath, // 실제 파일을 저장할 서버의 디렉토리
+			1024 * 1024 * 5,// 업로드 제한 파일 크기(단위 byte)--> 5MB
+			"utf-8",
+			new DefaultFileRenamePolicy()
+		);
+	  korname = multi.getParameter("korname");
+		// System.out.println("korname: " + korname);
+		title = multi.getParameter("title");
+		content = multi.getParameter("content");
+		
+		String filename1 = multi.getFilesystemName("filecontent1"); // 첫번째 파일첨부 이름
+		String filename2 = multi.getFilesystemName("filecontent2"); // 첫번째 파일첨부 이름
 		// 0.
 	  Class.forName("oracle.jdbc.driver.OracleDriver");
 	
@@ -28,11 +44,13 @@
 	  conn = DriverManager.getConnection(JDBC_URL, USER, PASSWORD);
 	  
 		// 2. BO_FREE 테이블에 화면 폼으로부터 가져온 데이터 입력
-		String insertQuery = "INSERT INTO BO_FREE(NAME, SUBJECT, CONTENT) VALUES (?,?,?)";
+		String insertQuery = "INSERT INTO BO_FREE(NAME, SUBJECT, CONTENT, FILE1_PATH ,FILE2_PATH) VALUES (?,?,?,?,?)";
 		pstmt = conn.prepareStatement(insertQuery);
 		pstmt.setString(1, korname);
 		pstmt.setString(2, title);
 		pstmt.setString(3, content);
+		pstmt.setString(4, filename1);
+		pstmt.setString(5, filename2);
 		
 		pstmt.executeUpdate();
   } catch(Exception e) {
